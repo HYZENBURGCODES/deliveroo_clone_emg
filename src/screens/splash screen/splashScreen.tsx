@@ -13,7 +13,7 @@ const splashScreen: React.FC<splashScreenProps> = ({ navigation }) => {
     useEffect(() => {
         setTimeout(() => {
             navigation.replace('menuScreen')
-        }, 6000)
+        }, 2000)
     }, [])
     return (
         <View style={styles.container}>

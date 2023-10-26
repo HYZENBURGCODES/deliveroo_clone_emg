@@ -10,7 +10,9 @@ import CustomFooterComponent from '../../components/Custom Footer Component/Cust
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsUserLoggedIn, setUserEmail } from '../../utils/Redux/slices/configSlice';
 import CustomModalComponent from '../../components/Custom Modal Component/CustomModalComponent';
-
+import DetailsCardComponent from '../../components/Details Card Component/DetailsCardComponent';
+import CategoryFlatlistComponent from '../../components/Category Flatlist Component/CategoryFlatlistComponent';
+import MenuFlatlistComponent from '../../components/Menu Flatlist Component/MenuFlatlistComponent';
 
 type splashScreenProps = {
   navigation: StackNavigationProp<CommonStackParamList, "menuScreen">;
@@ -24,7 +26,6 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
   const TopBarLogo = require('../../assets/images/topBarLogo.png');
 
   const [foodMenuList, setFoodMenuList] = useState<any>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isLogOutModalVisible, setIsLogOutModalVisible] = useState<boolean>(false)
 
@@ -54,34 +55,6 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
     console.log("configReducer::", configReducer)
   }
 
-  const renderCatergoryList = ({ item, index }: any) => {
-    return (
-      <View style={styles.render_category_flatlist_view_style}>
-        <TouchableOpacity style={[styles.render_category_flatlist_touchable_opacity_style, { backgroundColor: index == selectedIndex ? '#00CCBB' : '#fff' }]} onPress={() => {
-          setSelectedIndex(index);
-        }}>
-          <Text style={[styles.render_category_flatlist_text_style, { color: index == selectedIndex ? '#fff' : '#00CCBB' }]}>{item?.food?.category}</Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
-  const renderMenuList = ({ item }: any) => {
-    return (
-      <View style={styles.render_menu_food_flatlist_main_view_style}>
-        <TouchableOpacity style={styles.render_category_flatlist_touchable_opacity_style}>
-          <View style={styles.render_menu_food_flatlist_view_style}>
-            <View style={styles.render_menu_food_flatlist_view_column_style}>
-              <Text style={styles.render_menu_food_flatlist_header_text_style}>{item?.food?.label}</Text>
-              <Text style={styles.render_menu_food_flatlist_description_text_style}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.</Text>
-            </View>
-            <Image style={styles.render_menu_food_flatlist_image_view_style} source={{ uri: item?.food?.image }} />
-          </View>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
   useEffect(() => {
     fetchFoodMenuListFucntion();
   }, [])
@@ -105,15 +78,17 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
         rightButtonText={configReducer.isUserLoggedIn ? 'Log out' : 'Account'}
         onPressRightButton={() => configReducer.isUserLoggedIn ? LogOutModalVisibleFunction() : navigation.push('authenticationScreen')} />
 
+      <DetailsCardComponent />
+
       {/* category flatlist */}
       <View style={styles.render_category_flatlist_view_component}>
-        <FlatList data={foodMenuList} renderItem={renderCatergoryList} horizontal={true} showsHorizontalScrollIndicator={false} />
+        <CategoryFlatlistComponent Data={foodMenuList} />
       </View>
 
       {/* menu flatlist */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <View>
-          <FlatList data={foodMenuList} renderItem={renderMenuList} showsVerticalScrollIndicator={false} />
+          <MenuFlatlistComponent Data={foodMenuList} />
         </View>
 
         {/* footer component */}
@@ -124,7 +99,7 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
               + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
               + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'} />
         </View>
-      
+
       </ScrollView>
 
       {/* Logout modal component */}
@@ -168,6 +143,12 @@ const styles = StyleSheet.create({
     left: 10,
 
   },
+  render_category_flatlist_view_component: {
+    backgroundColor: "#fff",
+    borderColor: "#EBEBEB",
+    borderWidth: 1.2,
+    top: 8
+  },
   top_bar_serach_icon_container: {
     padding: 5,
     justifyContent: 'center',
@@ -187,51 +168,6 @@ const styles = StyleSheet.create({
   top_bar_account_icon_container_text_style: {
     color: '#000',
     fontSize: 18,
-  },
-  render_category_flatlist_view_style: {
-    padding: 20,
-  },
-  render_category_flatlist_touchable_opacity_style: {
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 4
-  },
-  render_category_flatlist_text_style: {
-    fontSize: 18,
-    fontWeight: "bold"
-  },
-  render_category_flatlist_view_component: {
-    backgroundColor: "#fff",
-    borderColor: "#EBEBEB",
-    borderWidth: 1.2,
-    top: 8
-  },
-  render_menu_food_flatlist_view_style: {
-    flexDirection: "row",
-  },
-  render_menu_food_flatlist_view_column_style: {
-    flexDirection: "column",
-    width: '70%',
-  },
-  render_menu_food_flatlist_header_text_style: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: '#000'
-  },
-  render_menu_food_flatlist_description_text_style: {
-    fontSize: 16,
-    top: 10,
-    color: 'grey'
-  },
-  render_menu_food_flatlist_main_view_style: {
-    padding: 15,
-    borderColor: '#EBEBEB',
-    borderWidth: 0.5,
-  },
-  render_menu_food_flatlist_image_view_style: {
-    width: 100,
-    height: 100,
-    marginLeft: 10,
   },
   CustomFooterComponent_view: {
     marginTop: 80

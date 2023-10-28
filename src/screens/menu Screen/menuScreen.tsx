@@ -1,18 +1,15 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View, ScrollView, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CommonStackParamList } from '../../navigation/navigation';
-import FoodMenuAPI from '../../utils/API/Food Menu API';
-import axios from 'axios';
-import { FlatList } from 'react-native-gesture-handler';
 import TopBarComponent from '../../components/Top Bar Component/TopBarComponent';
 import CustomFooterComponent from '../../components/Custom Footer Component/CustomFooterComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsUserLoggedIn, setUserEmail } from '../../utils/Redux/slices/configSlice';
 import CustomModalComponent from '../../components/Custom Modal Component/CustomModalComponent';
 import DetailsCardComponent from '../../components/Details Card Component/DetailsCardComponent';
-import CategoryFlatlistComponent from '../../components/Category Flatlist Component/CategoryFlatlistComponent';
 import MenuFlatlistComponent from '../../components/Menu Flatlist Component/MenuFlatlistComponent';
+import { MenuResponseData } from '../../utils/Sample JSON Responses';
 
 type splashScreenProps = {
   navigation: StackNavigationProp<CommonStackParamList, "menuScreen">;
@@ -31,12 +28,13 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
 
   const fetchFoodMenuListFucntion = async () => {
     try {
-      const fetchFoodMenuListFucntionRes = await axios.get(FoodMenuAPI.foodMenuUrl, FoodMenuAPI.foodMenuOptions);
+      // const fetchFoodMenuListFucntionRes = await axios.get(FoodMenuAPI.foodMenuUrl, FoodMenuAPI.foodMenuOptions);
+      const fetchFoodMenuListFucntionRes = MenuResponseData;
       if (fetchFoodMenuListFucntionRes) {
-        setFoodMenuList(fetchFoodMenuListFucntionRes?.data?.hints);
+        setFoodMenuList(fetchFoodMenuListFucntionRes);
         setIsLoading(false);
       }
-      console.log('fetchFoodMenuListFucntionRes:::', fetchFoodMenuListFucntionRes?.data?.hints);
+      console.log('fetchFoodMenuListFucntionRes:::', fetchFoodMenuListFucntionRes);
       console.log("configReducer::", configReducer)
     }
     catch (e) {
@@ -73,34 +71,33 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* top bar component */}
+   
       <TopBarComponent imageSource={TopBarLogo}
         middleButtonText={'search'}
         rightButtonText={configReducer.isUserLoggedIn ? 'Log out' : 'Account'}
         onPressRightButton={() => configReducer.isUserLoggedIn ? LogOutModalVisibleFunction() : navigation.push('authenticationScreen')} />
-
-      <DetailsCardComponent />
-
-      {/* category flatlist */}
-      <View style={styles.render_category_flatlist_view_component}>
-        <CategoryFlatlistComponent Data={foodMenuList} />
+      {/* top details card component */}
+      <DetailsCardComponent
+        resturantName={'Burger Street : Colombo'}
+        categoryList={'Green . Healthy . Chicken'}
+        description={'opens at 9:00am . closes at 12:00pm . 10 miles away .'}
+        imageURI={'https://img.freepik.com/free-photo/chicken-wings-barbecue-sweetly-sour-sauce-picnic-summer-menu-tasty-food-top-view-flat-lay_2829-6471.jpg'} />
+      
+      {/* menu flatlist */}
+      <View>
+        <MenuFlatlistComponent Data={foodMenuList} />
       </View>
 
-      {/* menu flatlist */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View>
-          <MenuFlatlistComponent Data={foodMenuList} />
-        </View>
+      {/* footer component */}
+      <View style={styles.CustomFooterComponent_view}>
+        <CustomFooterComponent mainHeaderText='Discover Deliveroo'
+          descriptionText={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus'
+            + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
+            + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
+            + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'} />
+      </View>
 
-        {/* footer component */}
-        <View style={styles.CustomFooterComponent_view}>
-          <CustomFooterComponent mainHeaderText='Discover Deliveroo'
-            descriptionText={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus'
-              + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
-              + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
-              + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'} />
-        </View>
-
-      </ScrollView>
+      {/* </ScrollView> */}
 
       {/* Logout modal component */}
       <CustomModalComponent isVisible={isLogOutModalVisible}
@@ -143,12 +140,6 @@ const styles = StyleSheet.create({
     left: 10,
 
   },
-  render_category_flatlist_view_component: {
-    backgroundColor: "#fff",
-    borderColor: "#EBEBEB",
-    borderWidth: 1.2,
-    top: 8
-  },
   top_bar_serach_icon_container: {
     padding: 5,
     justifyContent: 'center',
@@ -171,9 +162,7 @@ const styles = StyleSheet.create({
   },
   CustomFooterComponent_view: {
     marginTop: 80
-  }
-
-
+  },
 })
 
 export default menuScreen;

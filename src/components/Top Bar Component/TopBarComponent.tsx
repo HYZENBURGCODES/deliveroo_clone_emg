@@ -26,7 +26,7 @@ const TopBarComponent: React.FC<TopBarComponentTypes> = ({ imageSource, middleBu
 const styles = StyleSheet.create({
     top_bar_style: {
         flexDirection: "row",
-        padding: 3,
+        paddingVertical:3,
         borderBottomColor: '#EBEBEB',
         borderBottomWidth: 1.2,
         justifyContent: "space-between"

@@ -11,7 +11,7 @@ import splashScreen from "../screens/splash screen/splashScreen";
 import menuScreen from "../screens/menu Screen/menuScreen";
 
 export type CommonStackParamList = {
-    splashScreen: undefined;
+    // splashScreen: undefined;
     signinScreen: undefined;
     signupScreen: undefined;
     menuScreen: undefined;
@@ -24,13 +24,13 @@ const StackNavigation = () => {
     // const log = true;
     return (
         <Stack.Navigator
-            initialRouteName="splashScreen"
+            initialRouteName="menuScreen"
             screenOptions={{
                 gestureEnabled: false,
                 headerShown: false,
             }}
         >
-            <Stack.Screen name="splashScreen" component={splashScreen} />
+            {/* <Stack.Screen name="splashScreen" component={splashScreen} /> */}
             <Stack.Screen name="signinScreen" component={signinScreen} />
             <Stack.Screen name="signupScreen" component={SignupScreen} />
             <Stack.Screen name="menuScreen" component={menuScreen} />

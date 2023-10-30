@@ -1,7 +1,6 @@
-import { FlatList, Image, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { FC, useRef, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedCategoryRdx } from '../../utils/Redux/slices/flowStateSlice';
+import { Animated, ScrollView, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { FC, useState } from 'react'
+import { useSelector } from 'react-redux';
 
 type MenuFlatlistComponentProps = {
   Data: any;
@@ -9,10 +8,12 @@ type MenuFlatlistComponentProps = {
 
 const MenuFlatlistComponent: FC<MenuFlatlistComponentProps> = ({ Data, }) => {
 
-  const [selectedCategory, setSelectedCategory] = useState(1);
-  const sectionListRef = useRef<any>(null);
-  const categoryListRef = useRef<any>(null);
+  const flowStateReducer = useSelector((state: any) => state?.flowStateReducer);
+  const [selectedCategory, setSelectedCategory] = useState(0);
 
+  const handleCategoryChange = (category: any) => {
+    setSelectedCategory(category?.id);
+  };
 
   const renderSectionHeader = ({ section: { title } }: any) => (
     <View style={styles.sectionHeader}>
@@ -36,59 +37,62 @@ const MenuFlatlistComponent: FC<MenuFlatlistComponentProps> = ({ Data, }) => {
     )
   }
 
-  const renderCatergoryList = ({ item, index }: any) => {
+  const renderCatergoryList = () => {
     return (
-      <View style={styles.render_category_flatlist_view_style}>
-        <TouchableOpacity style={[styles.render_category_flatlist_touchable_opacity_style, { backgroundColor: selectedCategory == item?.id ? '#00CCBB' : '#fff' }]}
-          onPress={() => {
-            setSelectedCategory(item.id);
-            sectionListRef.current.scrollToLocation({
-              animated: true,
-              itemIndex: 0,
-              sectionIndex: item.id - 0,
-            });
-          }}>
-          <Text style={[styles.render_category_flatlist_text_style, { color: selectedCategory == item?.id ? '#fff' : '#00CCBB' }]}>{item?.title}</Text>
-        </TouchableOpacity>
-      </View>
+      <Animated.View style={styles.render_category_flatlist_view_style}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {Data.map((category: any) => (
+            <TouchableOpacity key={category} style={[styles.render_category_flatlist_touchable_opacity_style, { backgroundColor: selectedCategory === category?.id ? '#00CCBB' : '#fff' }]}
+              onPress={() => handleCategoryChange(category)}>
+              <Text style={[styles.render_category_flatlist_text_style, { color: selectedCategory === category?.id ? '#fff' : '#00CCBB' }]}>{category?.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Animated.View>
     )
   }
-
-  const onViewableItemsChanged = ({ viewableItems }: any) => {
-    const visibleSections = viewableItems.filter((item: any) => item.section);
-    if (visibleSections.length > 0) {
-      const firstVisibleSection = visibleSections[0].section;
-      const categoryMatch = Data.find((category: any) => category.title === firstVisibleSection.title);
-      if (categoryMatch) {
-        setSelectedCategory(categoryMatch.id);
-        categoryListRef.current.scrollToIndex({
-          animated: true,
-          index: categoryMatch.id - 0,
-        });
-      }
+  const renderSectionData = () => {
+    if (!selectedCategory) {
+      return Data.map((category: any) => ({
+        title: category.title,
+        data: category.data,
+      }));
     }
+
+    const selectedData = Data.find((categoryData: any) => categoryData.id === selectedCategory);
+    const filteredData = Data.filter((categoryData: any) => categoryData.id !== selectedCategory);
+
+    const selectedSection = {
+      title: selectedData?.title,
+      data: selectedData?.data,
+    };
+
+    const filteredSections = filteredData.map((category: any) => ({
+      title: category.title,
+      data: category.data,
+    }));
+
+    return [selectedSection, ...filteredSections];
   };
 
   return (
     <View>
-      <View style={styles.render_category_flatlist_view_component}>
-        <FlatList
-          ref={categoryListRef}
-          data={Data}
-          horizontal
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderCatergoryList}
-        />
-      </View>
+      {flowStateReducer?.selectedCategoryRdx <= 380 ? (
+        <View style={[styles.render_category_flatlist_view_component]}>
+          {renderCatergoryList()}
+        </View>) : null}
 
       <SectionList
-        ref={sectionListRef}
-        sections={Data}
-        keyExtractor={(item, index) => item + index}
+        sections={renderSectionData()}
+        keyExtractor={(index) => index.toString()}
         renderSectionHeader={renderSectionHeader}
         renderItem={renderMenuList}
-        onViewableItemsChanged={onViewableItemsChanged}
       />
+
+      {flowStateReducer?.selectedCategoryRdx > 380 ? (
+        <View style={[styles.render_category_flatlist_view_component, { position: "absolute", zIndex: 1, }]}>
+          {renderCatergoryList()}
+        </View>) : null}
     </View>
   )
 }
@@ -161,6 +165,8 @@ const styles = StyleSheet.create({
   render_category_flatlist_view_component: {
     borderColor: "#EBEBEB",
     borderWidth: 1.2,
+    zIndex: 1,
+    backgroundColor: "#fff"
 
   },
 

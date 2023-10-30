@@ -6,6 +6,7 @@ import TopBarComponent from '../../components/Top Bar Component/TopBarComponent'
 import CustomFooterComponent from '../../components/Custom Footer Component/CustomFooterComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsUserLoggedIn, setUserEmail } from '../../utils/Redux/slices/configSlice';
+import { setSelectedCategoryRdx } from '../../utils/Redux/slices/flowStateSlice';
 import CustomModalComponent from '../../components/Custom Modal Component/CustomModalComponent';
 import DetailsCardComponent from '../../components/Details Card Component/DetailsCardComponent';
 import MenuFlatlistComponent from '../../components/Menu Flatlist Component/MenuFlatlistComponent';
@@ -19,6 +20,7 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
 
   const dispatch = useDispatch();
   const configReducer = useSelector((state: any) => state?.configReducer);
+  const flowStateReducer = useSelector((state: any) => state?.flowStateReducer);
 
   const TopBarLogo = require('../../assets/images/topBarLogo.png');
 
@@ -57,6 +59,12 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
     fetchFoodMenuListFucntion();
   }, [])
 
+  const handleScroll = (event:any) => {
+    const scrollY = event.nativeEvent.contentOffset.y; 
+    dispatch(setSelectedCategoryRdx(scrollY));
+    console.log('Scroll position:', scrollY);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loading_container}>
@@ -71,39 +79,43 @@ const menuScreen: React.FC<splashScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* top bar component */}
-   
+
       <TopBarComponent imageSource={TopBarLogo}
         middleButtonText={'search'}
         rightButtonText={configReducer.isUserLoggedIn ? 'Log out' : 'Account'}
         onPressRightButton={() => configReducer.isUserLoggedIn ? LogOutModalVisibleFunction() : navigation.push('authenticationScreen')} />
-      {/* top details card component */}
-      <DetailsCardComponent
-        resturantName={'Burger Street : Colombo'}
-        categoryList={'Green . Healthy . Chicken'}
-        description={'opens at 9:00am . closes at 12:00pm . 10 miles away .'}
-        imageURI={'https://img.freepik.com/free-photo/chicken-wings-barbecue-sweetly-sour-sauce-picnic-summer-menu-tasty-food-top-view-flat-lay_2829-6471.jpg'} />
-      
-      {/* menu flatlist */}
-      <View>
-        <MenuFlatlistComponent Data={foodMenuList} />
-      </View>
 
-      {/* footer component */}
-      <View style={styles.CustomFooterComponent_view}>
-        <CustomFooterComponent mainHeaderText='Discover Deliveroo'
-          descriptionText={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus'
-            + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
-            + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
-            + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'} />
-      </View>
+      <ScrollView onScroll={(e)=>handleScroll(e)}>
+        {/* top details card component */}
+        <DetailsCardComponent
+          resturantName={'Burger Street : Colombo'}
+          categoryList={'Green . Healthy . Chicken'}
+          description={'opens at 9:00am . closes at 12:00pm . 10 miles away .'}
+          imageURI={'https://img.freepik.com/free-photo/chicken-wings-barbecue-sweetly-sour-sauce-picnic-summer-menu-tasty-food-top-view-flat-lay_2829-6471.jpg'} />
 
-      {/* </ScrollView> */}
+        {/* menu flatlist */}
+        <View>
+          <MenuFlatlistComponent Data={foodMenuList} />
+        </View>
 
-      {/* Logout modal component */}
-      <CustomModalComponent isVisible={isLogOutModalVisible}
-        onClose={() => setIsLogOutModalVisible(false)}
-        onLogout={() => LogOutFunction()}
-        userEmail={configReducer.userEmail} />
+        {/* footer component */}
+        <View style={styles.CustomFooterComponent_view}>
+          <CustomFooterComponent mainHeaderText='Discover Deliveroo'
+            descriptionText={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus'
+              + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
+              + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'
+              + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero id purus bibendum rhoncus.'} />
+        </View>
+
+        {/* </ScrollView> */}
+
+        {/* Logout modal component */}
+        <CustomModalComponent isVisible={isLogOutModalVisible}
+          onClose={() => setIsLogOutModalVisible(false)}
+          onLogout={() => LogOutFunction()}
+          userEmail={configReducer.userEmail} />
+
+      </ScrollView>
     </View>
   )
 }
